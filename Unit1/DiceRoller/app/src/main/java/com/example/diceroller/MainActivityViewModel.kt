@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 
 class MainActivityViewModel: ViewModel() {
 
+
+
     private var _number1: MutableLiveData<Int> = MutableLiveData(1)
     val number1: LiveData<Int> get() = _number1
 
@@ -16,8 +18,15 @@ class MainActivityViewModel: ViewModel() {
         val dice = Dice(6)
     }
 
+    init{
+        rollDice1()
+    }
+
     fun rollDice1(){
-        _number1.value = dice.roll()
+        _number1.value = with(dice) {
+            roll()
+        }
+
     }
 
     /**
