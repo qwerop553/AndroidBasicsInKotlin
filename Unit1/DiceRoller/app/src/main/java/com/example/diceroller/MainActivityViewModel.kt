@@ -21,7 +21,7 @@ class MainActivityViewModel: ViewModel() {
     }
 
     /**
-     * Create Dice 2 when user clicked [New Dice] Button.
+     * Create Dice 2 when user clicked "New Dice" Button.
      */
     fun makeDice2(){
         _number2.value = 1

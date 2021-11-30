@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,10 +38,10 @@ fun DiceActivityScreen(viewModel: MainActivityViewModel) {
     val result2: Int by viewModel.number2.observeAsState(-1)
     Column(Modifier.fillMaxSize()) {
 
-        Row(Modifier.fillMaxWidth().weight(1f)) {
-            DiceScreen(Modifier.weight(1f), result1, viewModel::rollDice1)
+        Row(Modifier.fillMaxWidth().weight(1f, true)) {
+            DiceScreen(Modifier.weight(1f).align(CenterVertically), result1, viewModel::rollDice1)
             if (result2 != -1) {
-                DiceScreen(Modifier.weight(1f), number = result2, onButtonClicked = viewModel::rollDice2)
+                DiceScreen(Modifier.weight(1f).align(CenterVertically), number = result2, onButtonClicked = viewModel::rollDice2)
             }
         }
 
