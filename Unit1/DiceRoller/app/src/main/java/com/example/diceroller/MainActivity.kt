@@ -2,9 +2,12 @@ package com.example.diceroller
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -22,6 +25,8 @@ import androidx.compose.ui.unit.dp
 
 
 import androidx.constraintlayout.compose.ConstraintLayout
+import kotlinx.coroutines.internal.synchronized
+import kotlin.reflect.KProperty
 
 class MainActivity : AppCompatActivity() {
     @ExperimentalAnimationApi
@@ -40,38 +45,40 @@ class MainActivity : AppCompatActivity() {
 @ExperimentalAnimationApi
 @Composable
 fun DiceActivityScreen(viewModel: MainActivityViewModel) {
-    val result1: Int by viewModel.number1.observeAsState(1)
-    val result2: Int by viewModel.number2.observeAsState(-1)
+    val result1 by viewModel.dice1.observeAsState()
+    val result2 by viewModel.dice2.observeAsState()
     Column(Modifier.fillMaxSize()) {
 
         Row(
             Modifier
                 .fillMaxWidth()
-                .weight(0.8f, true)
+                .weight(1f, true)
         ) {
             DiceScreen(
                 Modifier
                     .weight(1f)
-                    .align(CenterVertically), result1, viewModel::rollDice1
+                    .align(CenterVertically),
+                number = result1!!,
+                onButtonClicked = viewModel::rollDice1
             )
-            if (result2 != -1) {
+            if (result2!!.eye != -1) {
                 DiceScreen(
                     Modifier
                         .weight(1f)
                         .align(CenterVertically),
-                    number = result2,
+                    number = result2!!,
                     onButtonClicked = viewModel::rollDice2
                 )
             }
         }
 
         Button(
-            onClick = if (result2 == -1) viewModel::makeDice2 else viewModel::deleteDice,
+            onClick = if (result2!!.eye == -1) viewModel::makeDice2 else viewModel::deleteDice,
             modifier = Modifier
                 .align(CenterHorizontally)
                 .padding(16.dp)
         ) {
-            if (result2 == -1)
+            if (result2!!.eye == -1)
                 Text("Make Dice 2")
             else
                 Text("Delete Dice 2")
@@ -79,9 +86,12 @@ fun DiceActivityScreen(viewModel: MainActivityViewModel) {
     }
 }
 
+
+
+
 @ExperimentalAnimationApi
 @Composable
-fun DiceScreen(modifier: Modifier = Modifier, number: Int, onButtonClicked: () -> Unit) {
+fun DiceScreen(modifier: Modifier = Modifier, number: DiceResult, onButtonClicked: () -> Unit) {
     ConstraintLayout(modifier) {
 
         val (numberText, rollButton) = createRefs()
@@ -109,13 +119,15 @@ fun DiceScreen(modifier: Modifier = Modifier, number: Int, onButtonClicked: () -
     }
 }
 
+// 이 컴포저블은 실험용이므로 추후에 삭제되거나 변경될 수 있습니다.
 @ExperimentalAnimationApi
 @Composable
-fun Dice(modifier: Modifier = Modifier, number: Int) {
+fun Dice(modifier: Modifier = Modifier, number: DiceResult) {
 
     AnimatedContent(
         targetState = number,
         transitionSpec = {
+            // EnterTransition with ExitTransition
             (slideInVertically({ height -> height }) + fadeIn() with
                     slideOutVertically({ height -> -height }) + fadeOut())
                 .using(
@@ -125,30 +137,32 @@ fun Dice(modifier: Modifier = Modifier, number: Int) {
                 )
         }
     )
-    { targetNumber ->
-        val drawableId = when (targetNumber) {
-            1 -> R.drawable.dice_1
-            2 -> R.drawable.dice_2
-            3 -> R.drawable.dice_3
-            4 -> R.drawable.dice_4
-            5 -> R.drawable.dice_5
-            else -> R.drawable.dice_6
-        }
-
-        Image(
-            painterResource(
-                drawableId
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.Center
-        )
+    { targetState ->
+        Log.d("MainActivity", "Dice: $number")
+        DiceImage(selectDiceDrawable(targetState.eye))
     }
 }
 
-@ExperimentalAnimationApi
-@Preview
 @Composable
-fun DicePreview() {
-    DiceScreen(Modifier, 1) {}
+private fun DiceImage(@DrawableRes drawableId: Int) {
+    Image(
+        painterResource(
+            drawableId
+        ),
+        contentDescription = null,
+        contentScale = ContentScale.Fit,
+        alignment = Alignment.Center
+    )
+}
+
+@DrawableRes
+private fun selectDiceDrawable(targetNumber: Int): Int{
+     return when (targetNumber) {
+        1 -> R.drawable.dice_1
+        2 -> R.drawable.dice_2
+        3 -> R.drawable.dice_3
+        4 -> R.drawable.dice_4
+        5 -> R.drawable.dice_5
+        else -> R.drawable.dice_6
+    }
 }
