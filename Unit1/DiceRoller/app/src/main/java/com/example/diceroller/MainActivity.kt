@@ -8,19 +8,25 @@ import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 
@@ -47,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 fun DiceActivityScreen(viewModel: MainActivityViewModel) {
     val result1 by viewModel.dice1.observeAsState()
     val result2 by viewModel.dice2.observeAsState()
+    Log.d("MainActivity", "DiceActivityScreen Recomposition Occurred")
     Column(Modifier.fillMaxSize()) {
 
         Row(
@@ -72,6 +79,11 @@ fun DiceActivityScreen(viewModel: MainActivityViewModel) {
             }
         }
 
+        Text(
+            text = "Sum of Dices: ${result1!!.eye + ( if (result2!!.eye == -1) 0 else result2!!.eye)}" +
+                    " Roll Time: ${viewModel.rollTime}"
+        )
+
         Button(
             onClick = if (result2!!.eye == -1) viewModel::makeDice2 else viewModel::deleteDice,
             modifier = Modifier
@@ -92,7 +104,8 @@ fun DiceActivityScreen(viewModel: MainActivityViewModel) {
 @ExperimentalAnimationApi
 @Composable
 fun DiceScreen(modifier: Modifier = Modifier, number: DiceResult, onButtonClicked: () -> Unit) {
-    ConstraintLayout(modifier) {
+    Log.d("MainActivity", "DiceScreen Recomposition Occured")
+    ConstraintLayout(modifier.background(Color.LightGray)) {
 
         val (numberText, rollButton) = createRefs()
 
@@ -100,17 +113,19 @@ fun DiceScreen(modifier: Modifier = Modifier, number: DiceResult, onButtonClicke
         Dice(
             number = number,
             modifier = Modifier.constrainAs(numberText) {
-                top.linkTo(parent.top, 0.dp)
-                bottom.linkTo(parent.bottom, 0.dp)
-                start.linkTo(parent.start, 0.dp)
-                end.linkTo(parent.end, 0.dp)
+                top.linkTo(parent.top, 30.dp)
+                start.linkTo(parent.start, 12.dp)
+                end.linkTo(parent.end, 12.dp)
             }
         )
 
         Button(
             onClick = onButtonClicked,
             modifier = Modifier.constrainAs(rollButton) {
-                top.linkTo(numberText.bottom, 0.dp)
+                start.linkTo(parent.start, 12.dp)
+                end.linkTo(parent.end, 12.dp)
+                top.linkTo(numberText.bottom, 10.dp)
+                bottom.linkTo(parent.bottom, 10.dp)
             }
         ) {
             Text("ROLL")
@@ -126,6 +141,7 @@ fun Dice(modifier: Modifier = Modifier, number: DiceResult) {
 
     AnimatedContent(
         targetState = number,
+        modifier = modifier,
         transitionSpec = {
             // EnterTransition with ExitTransition
             (slideInVertically({ height -> height }) + fadeIn() with
@@ -138,6 +154,7 @@ fun Dice(modifier: Modifier = Modifier, number: DiceResult) {
         }
     )
     { targetState ->
+        Log.d("MainActivity", "Dice Recomposition Occurred")
         Log.d("MainActivity", "Dice: $number")
         DiceImage(selectDiceDrawable(targetState.eye))
     }
@@ -145,6 +162,7 @@ fun Dice(modifier: Modifier = Modifier, number: DiceResult) {
 
 @Composable
 private fun DiceImage(@DrawableRes drawableId: Int) {
+
     Image(
         painterResource(
             drawableId
