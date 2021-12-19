@@ -22,14 +22,15 @@ import androidx.compose.ui.unit.sp
 import com.example.lemonade.ui.theme.LemonadeTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LemonadeTheme {
-                // A surface container using the 'background' color from the theme
                 LemonadeScreen()
             }
         }
@@ -42,7 +43,7 @@ fun LemonadeScreen() {
     Scaffold (
         topBar = {
             TopAppBar(
-                contentPadding = PaddingValues(12.dp)
+                contentPadding = PaddingValues(18.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.app_name),
@@ -54,16 +55,12 @@ fun LemonadeScreen() {
         }
     ){ innerPadding ->
         Box(Modifier.padding(innerPadding).fillMaxSize()){
-            currentScreen.content(onScreenChange = { screen -> currentScreen = screen})
+                currentScreen.Content(onScreenChange = { screen -> currentScreen = screen }, LocalContext.current)
         }
     }
 
 }
 
-@Composable
-fun Lemonade(lemonState: String){
-
-}
 
 @Preview(showBackground = true)
 @Composable
