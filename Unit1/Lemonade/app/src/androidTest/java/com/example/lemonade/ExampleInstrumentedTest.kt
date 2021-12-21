@@ -1,12 +1,16 @@
 package com.example.lemonade
 
+import android.app.Application
+import android.content.Context
 import android.content.res.Resources
+import android.provider.Settings.Global.getString
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.content.ContextCompat
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -25,7 +29,8 @@ import java.lang.Thread.sleep
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-//@RunWith(AndroidJUnit4::class)
+@RunWith(AndroidJUnit4::class)
+@LargeTest
 class ExampleInstrumentedTest : BaseTest() {
 
     @get:Rule
@@ -58,6 +63,8 @@ class ExampleInstrumentedTest : BaseTest() {
     @Test
     fun `test_squeezing_lemon_proceeds_to_drink_state`(){
         sleep(5000)
+        composeTestRule.onNodeWithContentDescription(R.drawable.lemon_tree.toString())
+            .performClick()
         composeTestRule.onNodeWithContentDescription(R.drawable.lemon_squeeze.toString())
             .performClick()
         juiceLemon(composeTestRule)
@@ -72,7 +79,7 @@ open class BaseTest {
         @StringRes textResource: Int,
         @DrawableRes drawableResource: Int
     ) {
-        composeTestRule.onNode(hasText(Resources.getSystem().getString(textResource)))
+        composeTestRule.onNode(hasText(getApplicationContext<Context>().getString(textResource)))
             .assertExists()
         composeTestRule.onNode(hasContentDescription(drawableResource.toString()))
             .assertExists()
