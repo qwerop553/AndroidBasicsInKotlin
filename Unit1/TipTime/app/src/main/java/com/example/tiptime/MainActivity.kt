@@ -11,8 +11,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,7 +53,8 @@ fun TipTimeScreen() {
 
     ) {
 
-        val (textField, editTextField, radioGroup) = createRefs()
+        var result by rememberSaveable { mutableStateOf("") }
+        val (textField, editTextField, radioGroup, switchButton, calculateButton, tipAmount) = createRefs()
 
         TextField(
             value = text,
@@ -64,7 +68,7 @@ fun TipTimeScreen() {
                     start.linkTo(parent.start, margin = 0.dp)
                 },
             label = {
-                Text("Cost of Service")
+                Text(stringResource(R.string.cost_of_service))
                 //  Text ("${isFocused.value}")
             },
             singleLine = true,
@@ -75,7 +79,7 @@ fun TipTimeScreen() {
         )
 
         Text(
-            text = "How was the service?",
+            text = stringResource(R.string.how_was_the_service),
             modifier = Modifier
                 .constrainAs(textField) {
                     start.linkTo(editTextField.start, margin = 0.dp)
@@ -90,27 +94,55 @@ fun TipTimeScreen() {
             }
         )
 
+        SwitchButton(
+            modifier = Modifier.constrainAs(switchButton) {
+                top.linkTo(radioGroup.bottom, margin = 8.dp)
+            })
+
+        Button(
+            onClick = {
+                val cost = if(isNormalCost(text)) text.toDouble() else 0
+                val serviceClass = when()
+                      result = ret
+
+            },
+            modifier = Modifier
+                .constrainAs(calculateButton) {
+                    top.linkTo(switchButton.bottom, margin = 8.dp)
+                }
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.calculate),
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+        }
+
+        Text(
+            text = stringResource(R.string.tip_amount) + result,
+            fontStyle = FontStyle.Italic,
+            modifier = Modifier.constrainAs(tipAmount){
+                top.linkTo(calculateButton.bottom, margin = 8.dp)
+                end.linkTo(parent.end, margin = 8.dp)
+
+            }
+        )
+
     }
 }
 
-/**
- * 입력된 값이 정상적일 때 true 를 리턴합니다.
- */
-fun isNormalCost(string: String): Boolean {
-    return string == "" || string.toDoubleOrNull() != null
-}
 
 /**
  * RadioGroup
  */
 @Composable
-fun displayRadioGroup(modifier: Modifier = Modifier) {
+fun displayRadioGroup(modifier: Modifier = Modifier, selected: ListString) {
     var selected by remember { mutableStateOf(AMAZING) }
     Column(modifier = modifier) {
         Row {
             RadioButton(selected = selected == AMAZING, onClick = { selected = AMAZING })
             Text(
-                text = AMAZING,
+                text = stringResource(R.string.amazing_service),
                 modifier = Modifier
                     .clickable { selected = AMAZING }
                     .padding(start = 4.dp, top = 4.dp)
@@ -119,7 +151,7 @@ fun displayRadioGroup(modifier: Modifier = Modifier) {
         Row {
             RadioButton(selected = selected == GOOD, onClick = { selected = GOOD })
             Text(
-                text = GOOD,
+                text = stringResource(R.string.good_service),
                 modifier = Modifier
                     .clickable { selected = GOOD }
                     .padding(start = 4.dp, top = 4.dp)
@@ -128,18 +160,33 @@ fun displayRadioGroup(modifier: Modifier = Modifier) {
         Row {
             RadioButton(selected = selected == OKAY, onClick = { selected = OKAY })
             Text(
-                text = OKAY,
+                text = stringResource(R.string.ok_service),
                 modifier = Modifier
                     .clickable { selected = OKAY }
                     .padding(start = 4.dp, top = 4.dp)
             )
         }
+
     }
+}
+
+@Composable
+fun SwitchButton(modifier: Modifier = Modifier) {
+    var checked by remember { mutableStateOf(true) }
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(stringResource(R.string.round_up_tip))
+        Switch(checked = checked, onCheckedChange = { checked = it })
+    }
+
 }
 
 private const val AMAZING: String = "Amazing (20%)"
 private const val GOOD: String = "Good (18%)"
 private const val OKAY: String = "Okay (15%)"
+
 @Preview(showBackground = true)
 @Composable
 fun TipTimePreview() {
