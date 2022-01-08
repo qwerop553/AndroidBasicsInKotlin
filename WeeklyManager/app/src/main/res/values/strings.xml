@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Weekly Manager</string>
+    <string name="importance">중요도: </string>
+</resources>
