@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.*
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.Star
@@ -70,9 +71,8 @@ fun SimpleExposedDropDownMenu(
     onChange: (Int) -> Unit,
     label: @Composable () -> Unit,
     modifier: Modifier,
-    backgroundCk= TextFieldDefaults.BackgroundOpacity),
-    shape: Shape = MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)
-){
+    backgroundColor: Color = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
+    shape: Shape = MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)){
     SimpleExposedDropDownMenuImpl(
         values = values,
         selectedIndex = selectedIndex,
@@ -113,7 +113,7 @@ private fun SimpleExposedDropDownMenuImpl(
     decorator: @Composable (Color, Dp, @Composable () -> Unit) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var textfieldSize by remember { mutableStateOf(Size.Zero) }
+    var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     val indicatorColor =
         if (expanded) MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high)
@@ -134,7 +134,7 @@ private fun SimpleExposedDropDownMenuImpl(
                 Modifier
                     .fillMaxWidth()
                     .background(color = backgroundColor, shape = shape)
-                    .onGloballyPositioned { textfieldSize = it.size.toSize() }
+                    .onGloballyPositioned { textFieldSize = it.size.toSize() }
                     .clip(shape)
                     .clickable {
                         expanded = !expanded
@@ -168,7 +168,7 @@ private fun SimpleExposedDropDownMenuImpl(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
+                .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
         ) {
             values.forEachIndexed { i, v ->
                 val scope = rememberCoroutineScope()
